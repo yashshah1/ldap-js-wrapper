@@ -20,7 +20,7 @@ const authenticate = (mis, password, options = {}) => {
   if (mis.length !== 9) return Promise.reject();
 
   // If a trailing space is sent, then we reject.
-  if (mis.length !== mis.trim()) return Promise.reject();
+  if (mis !== mis.trim()) return Promise.reject();
 
   // set default options
   options = {
@@ -44,7 +44,7 @@ const authenticate = (mis, password, options = {}) => {
   const opts = {
     filter: `cn=${mis}`,
     scope: "sub",
-    ...(!options.returnData && { attributes: ["dn"] }),
+    ...(options.returnData ? {} : { attributes: ["dn"] }),
   };
 
   return new Promise((resolve, reject) => {
