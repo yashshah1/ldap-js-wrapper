@@ -1,36 +1,36 @@
 const ldap = require("ldapjs");
 const defaultDataCheck = require("./utils");
 
-const authenticate = (username, password, options = {}) => {
-  // set default options
-  options = {
-    url: "ldap://10.1.101.41",
-    returnData: false,
-    baseSearchString: "dc=coep,dc=org,dc=in",
-    dataCheck: "coep",
-    ...options,
-  };
-
-  if (options.dataCheck === "coep") {
-    if (!defaultDataCheck(username, password)) return Promise.reject();
-  } else if (
-    options.dataCheck !== null &&
-    typeof options.dataCheck === "function"
-  ) {
-    if (!options.dataCheck(username, password)) return Promise.reject();
-  }
-
-  const client = ldap.createClient({
-    url: options.url,
-  });
-
-  const opts = {
-    filter: `cn=${username}`,
-    scope: "sub",
-    ...(options.returnData ? {} : { attributes: ["dn"] }),
-  };
-
+const authenticatePromise = (username, password, options = {}) => {
   return new Promise((resolve, reject) => {
+    // set default options
+    options = {
+      url: "ldap://10.1.101.41",
+      returnData: false,
+      baseSearchString: "dc=coep,dc=org,dc=in",
+      dataCheck: "coep",
+      ...options,
+    };
+
+    if (options.dataCheck === "coep") {
+      if (!defaultDataCheck(username, password)) return Promise.reject();
+    } else if (
+      options.dataCheck !== null &&
+      typeof options.dataCheck === "function"
+    ) {
+      if (!options.dataCheck(username, password)) return Promise.reject();
+    }
+
+    const client = ldap.createClient({
+      url: options.url,
+    });
+
+    const opts = {
+      filter: `cn=${username}`,
+      scope: "sub",
+      ...(options.returnData ? {} : { attributes: ["dn"] }),
+    };
+
     try {
       client.search(options.baseSearchString, opts, (err, ldapSearchRes) => {
         if (err) reject();
@@ -53,4 +53,4 @@ const authenticate = (username, password, options = {}) => {
   });
 };
 
-module.exports = { authenticate };
+module.exports = { authenticatePromise };
