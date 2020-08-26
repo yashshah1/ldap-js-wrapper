@@ -1,5 +1,7 @@
 # Authenticate LDAP using JS
 
+Wrapper on ldapJS to abstract a lot of things away, built specifically for COEP.
+
 ## Usage
 
 - Download this entire folder into your project as is, yes including the node_modules
@@ -37,17 +39,19 @@ authenticate(mis, password, { returnData: true })
 
 |   Name   |  Type  |       Description        |
 | :------: | :----: | :----------------------: |
-|   mis    | String |        MIS Number        |
-| password | String |     Moodle Password      |
+| username | String |      LDAP Username       |
+| password | String |      LDAP Password       |
 | options  | Object | Object for configuration |
 
 - options
 
-|    Name    |  Type   |    Default Value     |                                                    Description                                                     |
-| :--------: | :-----: | :------------------: | :----------------------------------------------------------------------------------------------------------------: |
-|    url     | String  | "ldap://10.1.101.41" |                                               LDAP URL (don't edit)                                                |
-| returnData | Boolean |        false         | Return data that is fetched by LDAP. If True, promise is resolved with the data, else an empty promise is resolved |
+|       Name       |        Type        |    Default Value     |                                                                       Description                                                                       |
+| :--------------: | :----------------: | :------------------: | :-----------------------------------------------------------------------------------------------------------------------------------------------------: |
+|       url        |       String       | "ldap://10.1.101.41" |                                                                  LDAP URL (don't edit)                                                                  |
+|    returnData    |      Boolean       |        false         |                   Return data that is fetched by LDAP. If True, promise is resolved with the data, else an empty promise is resolved                    |
+| baseSearchString |       String       | dc=coep,dc=org,dc=in |                                                                  Base String to search                                                                  |
+|    dataCheck     | String \| Function |        "coep"        | Default behaviour is to enable COEP level checks, for custom checks, pass a callback `(username, password) => boolean`, to skip this step, pass `null`. |
 
 ## Requirements
 
-- This code needs to be run from inside the college network.
+- For COEP, this code needs to be run from inside the college network.

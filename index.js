@@ -1,40 +1,23 @@
 const ldap = require("ldapjs");
+const defaultDataCheck = require("./utils");
 
-const authenticate = (mis, password, options = {}) => {
-  // if nothing is provided
-  if (!mis || !password) return Promise.reject();
-
-  // if a int is accidentally passed
-  if (typeof mis !== "string" || typeof password !== "string")
-    return Promise.reject();
-
-  // if empty strings or spaces are sent
-  /**
-   * We don't do password = password.trim()
-   * because there is a chance a password could have a trailing space
-   */
-  if (mis.trim().length === 0 || password.trim().length === 0)
-    return Promise.reject();
-
-  // All MIS numbers are 9 characters long
-  if (mis.length !== 9) return Promise.reject();
-
-  // If a trailing space is sent, then we reject.
-  if (mis !== mis.trim()) return Promise.reject();
-
+const authenticate = (username, password, options = {}) => {
   // set default options
   options = {
     url: "ldap://10.1.101.41",
     returnData: false,
+    baseSearchString: "dc=coep,dc=org,dc=in",
+    dataCheck: "coep",
     ...options,
   };
 
-  try {
-    // Sanity check
-    // All MIS numbers, ideally, should be parseble as ints
-    parseInt(mis);
-  } catch {
-    return Promise.reject();
+  if (options.dataCheck === "coep") {
+    if (!defaultDataCheck(username, password)) return Promise.reject();
+  } else if (
+    options.dataCheck !== null &&
+    typeof options.dataCheck === "function"
+  ) {
+    if (!options.dataCheck(username, password)) return Promise.reject();
   }
 
   const client = ldap.createClient({
@@ -42,14 +25,14 @@ const authenticate = (mis, password, options = {}) => {
   });
 
   const opts = {
-    filter: `cn=${mis}`,
+    filter: `cn=${username}`,
     scope: "sub",
     ...(options.returnData ? {} : { attributes: ["dn"] }),
   };
 
   return new Promise((resolve, reject) => {
     try {
-      client.search("dc=coep,dc=org,dc=in", opts, (err, ldapSearchRes) => {
+      client.search(options.baseSearchString, opts, (err, ldapSearchRes) => {
         if (err) reject();
 
         ldapSearchRes.on("searchEntry", entry => {
