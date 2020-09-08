@@ -7,7 +7,7 @@ const {
   SEARCH_ERROR,
   INVALID_CREDENTIALS,
   UNEXPECTED_ERROR,
-} = require("./constant");
+} = require("./constants");
 
 const authenticatePromise = (username, password, options = {}) => {
   return new Promise((resolve, reject) => {
