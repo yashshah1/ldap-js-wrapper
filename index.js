@@ -40,7 +40,6 @@ const authenticatePromise = (username, password, options = {}) => {
       timeout: options.timeout,
       connectTimeout: options.connectTimeout,
     });
-    console.log(client);
     const opts = {
       filter: `cn=${username}`,
       scope: "sub",
@@ -66,7 +65,7 @@ const authenticatePromise = (username, password, options = {}) => {
             resolve();
           });
         });
-        res.on("end", () => {
+        ldapSearchRes.on("end", () => {
           client.unbind();
         });
       });
